@@ -6,14 +6,14 @@
 #include "max6675.h"
 // Define Rotary Encoder Pins
 #define CLK_PIN 4
-#define DATA_PIN 17
+#define DATA_PIN 2
 #define SW_PIN 15
 // MAX6675 Pins
 #define thermoDO  14
 #define thermoCS  12
 #define thermoCLK  13
 // Mosfet Pin
-#define mosfet_pin 18
+#define mosfet_pin 32
 // Serial Enable
 #define __DEBUG__
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
@@ -44,6 +44,8 @@ void setup() {
 #ifdef __DEBUG__
   Serial.begin(115200);
 #endif
+  pinMode (ready, OUTPUT);
+  pinMode(notReady, OUTPUT);
   pinMode(buzzer, OUTPUT); // Set buzzer - pin 27 as an output
   pinMode(mosfet_pin, OUTPUT); // MOSFET output PIN
   pinMode(CLK_PIN, INPUT); // Encoer Clock Pin
