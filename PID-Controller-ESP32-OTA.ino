@@ -103,15 +103,22 @@ const char* serverIndex =
  */
 // Define Rotary Encoder Pins
 #define CLK_PIN 4
-#define DATA_PIN 17
+#define DATA_PIN 2
 #define SW_PIN 15
 // MAX6675 Pins
 #define thermoDO  14
 #define thermoCS  12
 #define thermoCLK  13
 // Mosfet Pin
-#define mosfet_pin 18
+#define mosfet_pin 32
 // Serial Enable
+
+
+
+
+
+
+
 #define __DEBUG__
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -123,7 +130,7 @@ const char* serverIndex =
 #define __Kp 30 // Proportional constant
 #define __Ki 0.7 // Integral Constant
 #define __Kd 200 // Derivative Constant
-const int buzzer = 27; //buzzer to arduino pin 27
+const int buzzer = 27; //buzzer to arduino pin 36
 const int ready = 26;
 const int notReady = 25;
 boolean startup_tone = true;
@@ -141,10 +148,9 @@ void setup() {
 #ifdef __DEBUG__
   Serial.begin(115200);
 #endif
-// Connect to WiFi network
+  // Connect to WiFi network
   WiFi.begin(ssid, password);
   Serial.println("");
-
   // Wait for connection
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -199,11 +205,14 @@ void setup() {
     }
   });
   server.begin();
+  pinMode (ready, OUTPUT);
+  pinMode(notReady, OUTPUT);
   pinMode(buzzer, OUTPUT); // Set buzzer - pin 27 as an output
   pinMode(mosfet_pin, OUTPUT); // MOSFET output PIN
   pinMode(CLK_PIN, INPUT); // Encoer Clock Pin
   pinMode(DATA_PIN, INPUT); //Encoder Data Pin
   pinMode(SW_PIN, INPUT_PULLUP);// Encoder SW Pin
+  
   pid.begin();          // initialize the PID instance
   pid.setpoint(150);    // The "goal" the PID controller tries to "reach"
   pid.tune(__Kp, __Ki,__Kd);    // Tune the PID, arguments: kP, kI, kD
@@ -244,7 +253,7 @@ void set_temp() {
 }
 
 void show_temp(){
-      display.clearDisplay(); // Clear the display
+    display.clearDisplay(); // Clear the display
     display.setTextSize(2); // Set text Size
     display.setCursor(5, 0); // Set the Display Cursor
     display.print("Cur Temp."); //Print to the Display
@@ -258,18 +267,17 @@ void show_temp(){
 
 void read_encoder(){ // In this function we read the encoder data and increment the counter if its rotaing clockwise and decrement the counter if its rotating counter clockwis
 while (encoder_btn_count==2){
-  clockPin = digitalRead(CLK_PIN); // we read the clock pin of the rotary encoder
-  if (clockPin != clockPinState  && clockPin == 1) { // if this condition is true then the encoder is rotaing counter clockwise and we decremetn the counter
-    if (digitalRead(DATA_PIN) != clockPin) {
-      set_temperature = set_temperature - 1;// decrmetn the counter.
-      tone2();
-      }  
-    else { 
-      set_temperature = set_temperature + .2;// Encoder is rotating CW so increment
-      tone2();
-      } 
-    if (set_temperature < 20 )set_temperature = 20; // if the counter value is less than 1 the set it back to 1
-    if (set_temperature > 38 ) set_temperature = 38; //if the counter value is grater than 150 then set it back to 150 
+      clockPin = digitalRead(CLK_PIN); // we read the clock pin of the rotary encoder
+        if (clockPin != clockPinState  && clockPin == 1) { // if this condition is true then the encoder is rotaing counter clockwise and we decremetn the counter
+            if (digitalRead(DATA_PIN) != clockPin) {
+             set_temperature = set_temperature - 1;// decrmetn the counter.
+              tone2();
+              } else { 
+                      set_temperature = set_temperature + .2;// Encoder is rotating CW so increment
+                       tone2();
+                        } 
+              if (set_temperature < 20 )set_temperature = 20; // if the counter value is less than 1 the set it back to 1
+              if (set_temperature > 38 ) set_temperature = 38; //if the counter value is grater than 150 then set it back to 150 
 #ifdef __DEBUG__
     Serial.println(set_temperature); // print the set temperature value on the serial monitor window
 #endif
